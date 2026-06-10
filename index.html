@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 12.0</title>
+    <title>【未來許願機】夢想狂想文字雲 11.1</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
         /* ========================================================== */
         @font-face {
             font-family: 'MyCustomFont';
-            src: url('StarPandaKidsBeta2.1.ttf') format('truetype');
+            src: url('StarPandaKidsBeta2.1.ttf') format('truetype'); /* ⚠️ 請確保與您的 ttf 檔名完全一致 */
         }
 
         * { box-sizing: border-box; }
@@ -34,43 +34,43 @@
             font-size: 1rem;
         }
 
-        /* 文字雲外殼：稍微加長總高度至 520px，提供更寬裕的垂直散落空間 */
+        /* 文字雲外殼：純白底、圓角化、加溫柔陰影 */
         .wordcloud-wrapper {
             position: relative;
             width: 100%;
             max-width: 850px;
-            height: 520px; 
+            height: 480px;
             background: #FFFFFF; 
             border-radius: 20px; 
             box-shadow: 0 12px 40px rgba(169, 156, 199, 0.25);
             overflow: hidden;
         }
 
-        /* 雲朵標題複合區：微調使定位更穩定 */
+        /* 複合圖層：獨立的雲朵標題複合區 */
         .title-cloud-container {
             position: absolute;
-            top: -10px;
+            top: -5px;
             left: 5px;
             z-index: 50; 
             display: flex;
             justify-content: center;
             align-items: center;
             width: 360px;
-            height: 125px;
+            height: 120px;
             transform-origin: top left;
         }
 
         .title-cloud-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain; 
+            object-fit: contain;
         }
 
-        /* 🔮 修改：將大標題精準固定錨定在雲朵圖檔的偏底部黃金視覺線 */
+        /* 鎖定大辨識度大標題 */
         .title-cloud-text {
             position: absolute;
             left: 44.5%;
-            top: 59%; /* 稍微下移，使其穩穩落在雲朵底部 */
+            top: 54%;
             transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
@@ -86,7 +86,7 @@
             display: block;
         }
 
-        /* 手機版響應式 RWD 縮放控制 */
+        /* 手機版 (寬度小於500) 專屬響應式優化：調大雲朵外框比例 */
         @media (max-width: 500px) {
             .title-cloud-container {
                 transform: scale(0.92); 
@@ -110,28 +110,37 @@
 
     <script>
         // ===================================================================
-        // ✨ 策展人專區二：手動精選回答（會依【單行不超5字、完整單詞不切斷】智慧斷行）
+        // ✨ 策展人專區二：手動精選回答（固定最大的12個）
+        // 💡 新功能提示：只要在字詞之間輸入「兩個半形空格」，程式就會依您的意思強制分行！
         // ===================================================================
         const bigWords = [
-            "希望在成功湖畔釣到大魚", "不要被當掉", "每天睡飽8小時", 
-            "交到男女朋友", "直接出道", "希望能跟校長合照", 
-            "被新竹的風吹到免修體育", "腳踏車永遠不被偷", "順利兩年準時畢業", 
-            "碩論一次就過關", "梅竹賽清大總錦標", "一定要拿到書卷獎"
+            "在成功湖畔  釣到大魚", // 🔮 範例：手動切成兩行
+            "微積分  一定要歐趴！",       
+            "每天都睡飽  8小時", 
+            "交到  男女朋友", 
+            "帥到直接出道",       
+            "希望能跟  校長合照", 
+            "成為訂閱破10萬的  Youtuber", 
+            "腳踏車  永遠不被偷", 
+            "順利兩年  準時畢業", 
+            "碩論一次  就過關", 
+            "梅竹賽  清大總錦標", 
+            "拿到書卷獎"
         ];
 
         // ===================================================================
-        // ✨ 策展人專區三：背景填充小字
+        // ✨ 策展人專區三：背景填充小字（小字如果想用空格切行也完全支援喔！）
         // ===================================================================
         const smallWordsPool = [
-            "歐趴", "天天開心沒煩惱", "實習順利", "進入竹科", "台積電報到", "錄取聯發科", "成功湖划船", 
-            "週末去夜唱", "總圖待一整天", "逛宵夜街", "水木變好吃", "大吃美食", "巨城逛到腳痠", "用九降風放風箏", 
-            "畢旅平安", "瀏海不會裂開", "下課時間比上課長", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", 
+            "歐趴", "天天開心  沒煩惱", "實習順利", "進入竹科", "台積電報到", "錄取聯發科", "成功湖划船", 
+            "週末去夜唱", "總圖待一整天", "逛宵夜街", "水木變好吃", "大吃美食", "巨城逛到腳痠", "用九降風  放風箏", 
+            "畢旅平安", "瀏海不會裂開", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", "絕不延畢",
             "梅竹選我", "熱血夜衝", "青春環島", "100分", "大吉", "未來狂想曲", "夢想實現", "E人都揪起來","告白",
             "不迷惘", "加油", "抽中宿舍", "冷氣很涼", "WiFi超快", "早八不遲到","我是I人我驕傲",
             "歐趴糖", "颱風天放假", "賺大錢", "不掉傘", "脫單", "翹課不會被點到","逛新竹動物園"
         ];
 
-        // 🎨 莫蘭迪繽紛色系
+        // 🎨 莫蘭迪繽紛色系矩陣
         const colorPalette = [
             "#6A51A3", "#8067B7", "#9A7EC9", "#B39DDB", "#D1C4E9", 
             "#1F6596", "#3A82B8", "#60A0D4", "#90CAF9", "#C1E2FF", 
@@ -174,44 +183,42 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 升級版：清大專屬「5字上限 x 完整單詞防切斷」智慧語意斷行演算法
+        // 🔮 升級版度量器：完美支援手動「雙空格」分行與保底自動換行規則
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
             
-            // 內建專利核心詞庫：只要跨過5字邊界，強制整包詞提前換行
-            const segmentKeywords = ["微積分", "成功湖", "腳踏車", "工程師", "聯發科", "台積電", "歐趴糖", "圖書館", "免修體育", "總錦標", "書卷獎", "男女朋友", "神曲產出"];
-            
-            // 處理英文空格斷句
-            const wordsArr = text.split(' ');
-            if (wordsArr.length > 2) {
-                lines.push(wordsArr.slice(0, 2).join(' '));
-                lines.push(wordsArr.slice(2).join(' '));
+            // 🛑 核心規則一：不論中英文，優先檢查字詞之間是否包含「2個以上的半形空格」
+            if (text.includes('  ')) {
+                // 利用正規表達式把兩個以上的空格當成切點，切出多行
+                lines = text.split(/ {2,}/).map(line => line.trim()).filter(line => line.length > 0);
             } 
-            // 處理中文 5 字上限邏輯
-            else if (text.length >= 5 && !text.includes(' ')) {
-                let breakIdx = 5; // 默認最大容許值 5 字
-                
-                // 掃描是否有關鍵字跨在切點上
-                for (let keyword of segmentKeywords) {
-                    const kIdx = text.indexOf(keyword);
-                    // 如果關鍵字存在，且剛好跨在第 5 個字的前後
-                    if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
-                        breakIdx = kIdx; // 🔒 提前在單詞之前進行分行
-                        break;
+            // 🛑 核心規則二：若沒有手動空格，則觸發原本的保底自動智慧斷行
+            else {
+                const wordsArr = text.split(' ');
+                if (wordsArr.length > 2) {
+                    const firstLine = wordsArr.slice(0, 2).join(' ');
+                    const secondLine = wordsArr.slice(2).join(' ');
+                    lines.push(firstLine);
+                    lines.push(secondLine);
+                } else if (text.length > 6 && !text.includes(' ')) {
+                    if (text.includes("成功湖畔")) {
+                        lines.push(text.substring(0, 6)); 
+                        lines.push(text.substring(6));    
+                    } else if (text.includes("被新竹的風吹到")) {
+                        lines.push("被新竹的風吹到"); 
+                        lines.push(text.replace("被新竹的風吹到", ""));
+                    } else {
+                        lines.push(text.substring(0, 6));
+                        lines.push(text.substring(6));
                     }
+                } else {
+                    lines.push(text);
                 }
-                
-                // 防呆機制：如果提前切斷導致第一行為空，則恢復原本切法
-                if (breakIdx === 0) breakIdx = 5;
-
-                lines.push(text.substring(0, breakIdx));
-                lines.push(text.substring(breakIdx));
-            } else {
-                lines.push(text);
             }
 
+            // 精確測量這疊多行文字在 Canvas 上的物理總寬度與總高度
             let maxWidth = 0;
             lines.forEach(line => {
                 const w = ctx.measureText(line).width;
@@ -219,7 +226,8 @@
             });
             ctx.restore();
 
-            const h = lines.length > 1 ? (size * 1.9) : size;
+            // 多行高度加總計算（行高給予 1.25 倍舒適視覺間距）
+            const h = lines.length > 1 ? (size * (1 + (lines.length - 1) * 0.9)) : size;
             return { lines, width: maxWidth + 14, height: h + 10 };
         }
 
@@ -227,9 +235,7 @@
             words = [];
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
-
-            // 🔒 核心微調：將 Y 軸天花板防撞邊界從 95 拓展拉開到 135，給聚光燈絕對安全區
-            const titleHeightBoundary = 135 * scaleFactor; 
+            const titleHeightBoundary = 95 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
             bigWords.forEach((text, idx) => {
@@ -281,6 +287,7 @@
                 }
 
                 if (!isOverlapping) {
+                    // 多行文字（如手動雙空格斷行）維持平角以利閱讀，常態短字體維持霛動微旋轉
                     const maxAngle = (isHighlight || dims.lines.length > 1) ? (3 * Math.PI / 180) : (25 * Math.PI / 180);
                     const rotateAngle = (Math.random() * 2 - 1) * maxAngle;
 
@@ -304,7 +311,29 @@
             ctx.save();
             ctx.scale(dpr, dpr); 
 
-            // 第一層：普通文字
+            // 📌 繪製左上角雲朵對話框標題區
+            ctx.save();
+            const cloudW = 340 * scaleFactor; 
+            const cloudH = 115 * scaleFactor; 
+            const cloudX = 5;
+            const cloudY = -12; 
+
+            if (cloudImg.width > 0) {
+                ctx.drawImage(cloudImg, cloudX, cloudY, cloudW, cloudH);
+            }
+
+            const titleSize = 22 * scaleFactor; 
+            ctx.font = `bold ${titleSize}px ${fontName}`;
+            ctx.fillStyle = titleColor;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            const textCenterX = cloudX + (cloudW * 0.44); 
+            const textCenterY = cloudY + (cloudH * 0.54);
+            ctx.fillText(titleText, textCenterX, textCenterY);
+            ctx.restore();
+
+            // 第一層：普通文字繪製
             words.forEach((word, idx) => {
                 if (idx === activeIndex) return; 
                 ctx.save();
@@ -317,6 +346,7 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
+                // 渲染多行文字
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
                         const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.25);
@@ -328,7 +358,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應圓型聚光燈（🔒 加強天花板物理限制）
+            // 第二層：置頂 🔮 自適應多行正圓形聚光燈（完美適應多行，長高全包覆）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -336,6 +366,8 @@
                 const targetSize = word.baseSize * 1.12; 
                 word.currentSize += (targetSize - word.currentSize) * 0.1;
                 
+                // 🔮 重新計算高光半徑：精確測量多行文字加總後的真實對角線，加上 18px 舒適寬裕邊界
+                // 不論分兩行、三行，圓形都絕不穿幫，完美包覆
                 const textDiagonal = Math.sqrt(word.w * word.w + word.h * word.h);
                 const radius = (textDiagonal / 2) + (18 * scaleFactor); 
                 
@@ -345,16 +377,16 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 🔒 邊界物理反彈：Y軸天花板調高到 135 * scaleFactor，圓形灰框百分之百不碰觸雲朵
+                // 物理邊界防裁切
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
-                if (renderY - radius < 135 * scaleFactor) renderY = radius + 135 * scaleFactor;
+                if (renderY - radius < 95 * scaleFactor) renderY = radius + 95 * scaleFactor;
                 if (renderY + radius > H - 15) renderY = H - radius - 15;
 
                 ctx.translate(renderX, renderY);
                 ctx.rotate(word.angle);
 
-                // 圓形半透明底框
+                // 繪製正圓形灰底
                 ctx.beginPath();
                 ctx.fillStyle = `rgba(95, 95, 95, ${0.78 * highlightProgress})`; 
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
