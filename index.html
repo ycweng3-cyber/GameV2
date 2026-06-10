@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 9.0</title>
+    <title>【未來許願機】夢想狂想文字雲 10.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -83,7 +83,7 @@
             "#D47A2A", "#E69549", "#F5B070", "#FFCC80", "#FFE0B2", // 柔橘
             "#2E6930", "#438A47", "#66BB6A", "#A5D6A7", "#C8E6C9", // 嫩綠
             "#B84A6E", "#D1648A", "#E682A5", "#F48FB1", "#F8BBD0"  // 柔粉
-      ];
+        ];
 
         const canvas = document.getElementById('cloudCanvas');
         const ctx = canvas.getContext('2d');
@@ -102,15 +102,20 @@
         const cloudImg = new Image();
         cloudImg.src = 'cloud.gif'; // ⚠️ 請確保與您的 gif 檔名一致並存在同目錄
 
-        cloudImg.onload = () => {
-            // 確保圖片載入完畢後再初始化
-            if(words.length === 0) initWordCloud();
-        };
-
-        // 防止圖片載入過慢的保底啟動機制
-        setTimeout(() => {
-            if (words.length === 0) initWordCloud();
-        }, 500);
+        // 🔒 雙重保險異步載入鎖：確保字體和圖片都 100% 好了才准初始化畫布
+        Promise.all([
+            document.fonts.ready,
+            new Promise((resolve) => {
+                if (cloudImg.complete) {
+                    resolve();
+                } else {
+                    cloudImg.onload = () => resolve();
+                    cloudImg.onerror = () => resolve(); // 防止圖片失效卡死網頁
+                }
+            })
+        ]).then(() => {
+            initWordCloud();
+        });
 
         function initWordCloud() {
             resizeCanvas();
@@ -150,7 +155,7 @@
                     lines.push(text.substring(6));    
                 } else if (text.includes("被新竹的風吹到")) {
                     lines.push("被新竹的風吹到"); 
-                    lines.push(text.replace("Space", "").replace("被新竹的風吹到", ""));
+                    lines.push(text.replace("被新竹的風吹到", ""));
                 } else {
                     lines.push(text.substring(0, 6));
                     lines.push(text.substring(6));
@@ -175,8 +180,8 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 🔒 配合更大標題與雲朵圖檔，拉高安全天花板防撞邊界
-            const titleHeightBoundary = 90 * scaleFactor; 
+            // 🔒 配合加大標題與雲朵圖檔，拉高安全天花板防撞邊界
+            const titleHeightBoundary = 95 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
             bigWords.forEach((text, idx) => {
@@ -253,24 +258,24 @@
 
             // 📌 繪製左上角雲朵對話框標題區
             ctx.save();
-            // 自動適應手機/電腦動態縮放雲朵外框寬高
-            const cloudW = 320 * scaleFactor;
-            const cloudH = 110 * scaleFactor;
+            const cloudW = 340 * scaleFactor; // 寬度稍微加寬
+            const cloudH = 115 * scaleFactor; // 高度稍微加高
             const cloudX = 5;
-            const cloudY = -10; // 讓稍微往外推更自然
+            const cloudY = -12; 
 
-            // 在標題背後繪製您提供的雲朵對話框 GIF
-            if (cloudImg.complete && cloudImg.width > 0) {
+            // 確保雲朵對話框 GIF 100% 存在才繪製
+            if (cloudImg.width > 0) {
                 ctx.drawImage(cloudImg, cloudX, cloudY, cloudW, cloudH);
             }
 
-            // 🔮 大字體高辨識度標題（置中精準對齊於雲朵內部腹地）
-            const titleSize = 17.5 * scaleFactor; // 字體放大增強氣勢
+            // 🔮 大字體高辨識度標題（字體有感放大至 22px）
+            const titleSize = 22 * scaleFactor; 
             ctx.font = `bold ${titleSize}px ${fontName}`;
             ctx.fillStyle = titleColor;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            // 雲朵白色核心的物理黃金交點
+            
+            // 雲朵白色核心黃金交點
             const textCenterX = cloudX + (cloudW * 0.44); 
             const textCenterY = cloudY + (cloudH * 0.54);
             ctx.fillText(titleText, textCenterX, textCenterY);
@@ -300,7 +305,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂 🔮 智慧自適應小圓型聚光燈（防爆框、範圍更小更精緻）
+            // 第二層：置頂 🔮 智慧自適應小圓型聚光燈（大小字自適應，縮放黃金比例）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -308,8 +313,9 @@
                 const targetSize = word.baseSize * 1.12; 
                 word.currentSize += (targetSize - word.currentSize) * 0.1;
                 
-                // 🔮 縮小半徑：改由長寬平均值去算圓形，範圍更緊實精緻
-                const radius = ((word.w + word.h) / 2) * 0.56;
+                // 🔮 圓形聚光燈半徑計算：依據文字實際總寬度或高度，加上寬裕的緩衝，保證大字大圓、小字小圓
+                const textDiagonal = Math.sqrt(word.w * word.w + word.h * word.h);
+                const radius = (textDiagonal / 2) + (14 * scaleFactor); 
                 
                 let renderX = word.x;
                 let renderY = word.y;
@@ -320,15 +326,15 @@
                 // 物理邊界反彈
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
-                if (renderY - radius < 90 * scaleFactor) renderY = radius + 90 * scaleFactor;
+                if (renderY - radius < 95 * scaleFactor) renderY = radius + 95 * scaleFactor;
                 if (renderY + radius > H - 15) renderY = H - radius - 15;
 
                 ctx.translate(renderX, renderY);
                 ctx.rotate(word.angle);
 
-                // 畫出明確、小巧的「圓形」半透明灰底
+                // 畫出明確、自適應包裹的「圓形」半透明灰底
                 ctx.beginPath();
-                ctx.fillStyle = `rgba(95, 95, 95, ${0.78 * highlightProgress})`; 
+                ctx.fillStyle = `rgba(90, 90, 90, ${0.78 * highlightProgress})`; 
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
                 ctx.fill();
 
@@ -356,7 +362,6 @@
         function triggerSpotlight() {
             if (words.length === 0) return;
             
-            // 🔮 核心調整：不再過濾 isHighlight，直接開放全體 words 陣列的所有詞句隨機參與！
             let nextIdx;
             do {
                 nextIdx = Math.floor(Math.random() * words.length);
@@ -384,10 +389,6 @@
                 }, 25);
             }, 2300);
         }
-
-        document.fonts.ready.then(() => {
-            initWordCloud();
-        });
 
         window.addEventListener('resize', () => {
             resizeCanvas();
