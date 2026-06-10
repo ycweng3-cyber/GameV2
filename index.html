@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 14.0</title>
+    <title>【未來許願機】夢想狂想文字雲 15.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -66,11 +66,11 @@
             object-fit: contain; 
         }
 
-        /* 🔒 精準校正：大標題完美固定在雲朵底部視覺線 */
+        /* 大標題精準固定錨定在雲朵底部視覺線 */
         .title-cloud-text {
             position: absolute;
             left: 44.5%;
-            top: 61%; /* 經過精準微調，使字體完美錨定在 cloud.gif 的對話框底部 */
+            top: 61%; 
             transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
@@ -110,7 +110,7 @@
 
     <script>
         // ===================================================================
-        // ✨ 策展人專區二：手動精選回答（行行遵守5字上限、單詞不切斷，且絕對不卡死）
+        // ✨ 策展人專區二：手動精選回答（行行遵守5字上限、單詞不切斷）
         // ===================================================================
         const bigWords = [
             "希望在成功湖畔釣到大魚", "微積分一定要歐趴！", "每天都有睡飽8小時", 
@@ -148,17 +148,18 @@
         let dpr = window.devicePixelRatio || 1;
         let scaleFactor = 1; 
 
-        const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
+        // 預設字體後備順序，確保在自訂字體下載完前也能正常顯示
+        const fontName = "'MyCustomFont', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
 
-        document.fonts.ready.then(() => {
-            initWordCloud();
-        });
+        // 🔒 關鍵修復：直接啟動文字雲，不再被非同步字體載入給卡死！
+        initWordCloud();
 
         function initWordCloud() {
             resizeCanvas();
             generateLayout();
             drawLoop();
             
+            // 啟動聚光燈輪播機制
             setInterval(triggerSpotlight, 3800);
             setTimeout(triggerSpotlight, 1500); 
         }
@@ -174,22 +175,19 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 14.0 安全修復版：「絕對不卡死」的行行自適應智慧語意分詞演算法
+        // 🔮 15.0 智慧語意分詞演算法（每行限制5字且單詞不破碎）
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
             
-            // 擴充清大核心關鍵字庫（包含成功湖畔等變體）
             const segmentKeywords = ["微積分", "成功湖", "腳踏車", "工程師", "聯發科", "台積電", "歐趴糖", "圖書館", "免修體育", "總錦標", "書卷獎", "男女朋友", "神曲產出"];
             
-            // 優先處理英文空格斷句
             const wordsArr = text.split(' ');
             if (wordsArr.length > 2) {
                 lines.push(wordsArr.slice(0, 2).join(' '));
                 lines.push(wordsArr.slice(2).join(' '));
             } 
-            // 中文智慧防卡死斷行機制
             else {
                 let remainingText = text;
                 
@@ -199,26 +197,20 @@
                         break;
                     }
                     
-                    let breakIdx = 5; // 預設切 5 個字
+                    let breakIdx = 5; 
                     
-                    // 檢查前 5 個字內有沒有包含關鍵字，且該關鍵字不幸跨越了第 5 字的邊界
                     for (let keyword of segmentKeywords) {
                         const kIdx = remainingText.indexOf(keyword);
-                        // 關鍵字起點在前 5 字內，且整個單詞長度跨過了第 5 字
                         if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
-                            // 如果關鍵字不是在第 0 個位置，就在關鍵字開頭切斷
                             if (kIdx > 0) {
                                 breakIdx = kIdx;
                             } else {
-                                // 如果關鍵字正好在第 0 個位置（例如"成功湖畔釣大魚"中的"成功湖"占了0,1,2）
-                                // 則容許將切點推到關鍵字的結尾（例如推到第3個字「畔」前面切斷），確保單詞不破碎
                                 breakIdx = keyword.length;
                             }
                             break;
                         }
                     }
                     
-                    // 🔒 安全鎖定：如果因為任何不可預期狀況導致 breakIdx 歸零或不合理，強制切 5 個字，絕對不進入死循環
                     if (breakIdx <= 0 || breakIdx > remainingText.length) {
                         breakIdx = 5;
                     }
@@ -244,7 +236,7 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 天花板安全防撞區
+            // 天花板安全防撞區（拓展至 135px，確保灰色光圈不碰到雲朵標題）
             const titleHeightBoundary = 135 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
@@ -344,7 +336,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應圓型聚光燈
+            // 第二層：置頂自適應圓型聚光燈（完美的 Y 軸防撞保護機制）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
