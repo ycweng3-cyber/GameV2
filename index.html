@@ -174,7 +174,7 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 升級版：清大專屬「5字上限 x 完整單詞防切斷」智慧語意斷行演算法
+        // 🔮 升級版：清大專屬「全行 5 字上限 x 完整單詞防切斷」多行遞迴語意斷行演算法
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
@@ -183,33 +183,42 @@
             // 內建專利核心詞庫：只要跨過5字邊界，強制整包詞提前換行
             const segmentKeywords = ["微積分", "成功湖", "腳踏車", "工程師", "聯發科", "台積電", "歐趴糖", "圖書館", "免修體育", "總錦標", "書卷獎", "男女朋友", "神曲產出"];
             
-            // 處理英文空格斷句
+            // 優先處理英文空格斷句
             const wordsArr = text.split(' ');
             if (wordsArr.length > 2) {
                 lines.push(wordsArr.slice(0, 2).join(' '));
                 lines.push(wordsArr.slice(2).join(' '));
             } 
-            // 處理中文 5 字上限邏輯
-            else if (text.length >= 5 && !text.includes(' ')) {
-                let breakIdx = 5; // 默認最大容許值 5 字
+            // 中文全面啟用「智慧多行漏斗切片」
+            else {
+                let remainingText = text;
                 
-                // 掃描是否有關鍵字跨在切點上
-                for (let keyword of segmentKeywords) {
-                    const kIdx = text.indexOf(keyword);
-                    // 如果關鍵字存在，且剛好跨在第 5 個字的前後
-                    if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
-                        breakIdx = kIdx; // 🔒 提前在單詞之前進行分行
+                while (remainingText.length > 0) {
+                    // 如果剩餘字數本來就小於等於 5 個字，直接收尾
+                    if (remainingText.length <= 5) {
+                        lines.push(remainingText);
                         break;
                     }
+                    
+                    let breakIdx = 5; // 每行最大容許值 5 個字
+                    
+                    // 掃描是否有關鍵字跨在當前行的第 5 字切點上
+                    for (let keyword of segmentKeywords) {
+                        const kIdx = remainingText.indexOf(keyword);
+                        // 如果關鍵字存在，且起點在前 5 字內，但結尾超過了第 5 字
+                        if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
+                            breakIdx = kIdx; // 🔒 提前在該單詞前分行，打包丟給下一行
+                            break;
+                        }
+                    }
+                    
+                    // 防呆機制：如果提前切斷導致這一行變成 0 個字，則強制切 5 個字，避免無窮迴圈
+                    if (breakIdx === 0) breakIdx = 5;
+                    
+                    // 切出這一行的文字，並更新剩餘文字
+                    lines.push(remainingText.substring(0, breakIdx));
+                    remainingText = remainingText.substring(breakIdx);
                 }
-                
-                // 防呆機制：如果提前切斷導致第一行為空，則恢復原本切法
-                if (breakIdx === 0) breakIdx = 5;
-
-                lines.push(text.substring(0, breakIdx));
-                lines.push(text.substring(breakIdx));
-            } else {
-                lines.push(text);
             }
 
             let maxWidth = 0;
@@ -219,7 +228,8 @@
             });
             ctx.restore();
 
-            const h = lines.length > 1 ? (size * 1.9) : size;
+            // 動態計算整體高度：根據最終切出來的總行數給予完美行高
+            const h = lines.length > 1 ? (size * (1 + (lines.length - 1) * 0.95)) : size;
             return { lines, width: maxWidth + 14, height: h + 10 };
         }
 
@@ -228,7 +238,7 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 🔒 核心微調：將 Y 軸天花板防撞邊界從 95 拓展拉開到 135，給聚光燈絕對安全區
+            // 🔒 將 Y 軸天花板防撞邊界拓展拉開到 135，給聚光燈絕對安全區
             const titleHeightBoundary = 135 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
@@ -328,7 +338,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應圓型聚光燈（🔒 加強天花板物理限制）
+            // 第二層：置頂自適應圓型聚光燈
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -345,7 +355,7 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 🔒 邊界物理反彈：Y軸天花板調高到 135 * scaleFactor，圓形灰框百分之百不碰觸雲朵
+                // 邊界物理反彈：確保灰框不親到頂部雲朵
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
                 if (renderY - radius < 135 * scaleFactor) renderY = radius + 135 * scaleFactor;
