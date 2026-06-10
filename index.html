@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 11.1</title>
+    <title>【未來許願機】夢想狂想文字雲 11.2</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
         /* ========================================================== */
         @font-face {
             font-family: 'MyCustomFont';
-            src: url('StarPandaKidsBeta2.1.ttf') format('truetype'); /* ⚠️ 請確保與您的 ttf 檔名完全一致 */
+            src: url('StarPandaKidsBeta2.1.ttf') format('truetype'); /* ⚠️ 確保與您的 ttf 檔名完全一致 */
         }
 
         * { box-sizing: border-box; }
@@ -111,11 +111,11 @@
     <script>
         // ===================================================================
         // ✨ 策展人專區二：手動精選回答（固定最大的12個）
-        // 💡 新功能提示：只要在字詞之間輸入「兩個半形空格」，程式就會依您的意思強制分行！
+        // 💡 提示：字詞之間輸入「兩個半形空格」，程式就會依您的意思強制分行！
         // ===================================================================
         const bigWords = [
-            "在成功湖畔  釣到大魚", // 🔮 範例：手動切成兩行
-            "微積分  一定要歐趴！",       
+            "在成功湖畔  釣到大魚", 
+            "微積分  裝作聽得懂",       
             "每天都睡飽  8小時", 
             "交到  男女朋友", 
             "帥到直接出道",       
@@ -129,7 +129,7 @@
         ];
 
         // ===================================================================
-        // ✨ 策展人專區三：背景填充小字（小字如果想用空格切行也完全支援喔！）
+        // ✨ 策展人專區三：背景填充小字（小字若用雙空格切行也完全支援）
         // ===================================================================
         const smallWordsPool = [
             "歐趴", "天天開心  沒煩惱", "實習順利", "進入竹科", "台積電報到", "錄取聯發科", "成功湖划船", 
@@ -159,6 +159,11 @@
 
         const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
 
+        // 🔒【重要修復點 1】：重新補上雲朵圖片物件宣告，徹底防止 Canvas 渲染報錯中斷
+        const cloudImg = new Image();
+        cloudImg.src = 'cloud.gif'; 
+
+        // 確保字體與瀏覽器環境準備完成後啟動文字雲
         document.fonts.ready.then(() => {
             initWordCloud();
         });
@@ -183,7 +188,7 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 升級版度量器：完美支援手動「雙空格」分行與保底自動換行規則
+        // 度量器：完美支援手動「雙空格」分行與保底自動換行規則
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
@@ -191,7 +196,6 @@
             
             // 🛑 核心規則一：不論中英文，優先檢查字詞之間是否包含「2個以上的半形空格」
             if (text.includes('  ')) {
-                // 利用正規表達式把兩個以上的空格當成切點，切出多行
                 lines = text.split(/ {2,}/).map(line => line.trim()).filter(line => line.length > 0);
             } 
             // 🛑 核心規則二：若沒有手動空格，則觸發原本的保底自動智慧斷行
@@ -218,7 +222,7 @@
                 }
             }
 
-            // 精確測量這疊多行文字在 Canvas 上的物理總寬度與總高度
+            // 精確測量文字在 Canvas 上的總寬度與總高度
             let maxWidth = 0;
             lines.forEach(line => {
                 const w = ctx.measureText(line).width;
@@ -226,7 +230,6 @@
             });
             ctx.restore();
 
-            // 多行高度加總計算（行高給予 1.25 倍舒適視覺間距）
             const h = lines.length > 1 ? (size * (1 + (lines.length - 1) * 0.9)) : size;
             return { lines, width: maxWidth + 14, height: h + 10 };
         }
@@ -287,7 +290,6 @@
                 }
 
                 if (!isOverlapping) {
-                    // 多行文字（如手動雙空格斷行）維持平角以利閱讀，常態短字體維持霛動微旋轉
                     const maxAngle = (isHighlight || dims.lines.length > 1) ? (3 * Math.PI / 180) : (25 * Math.PI / 180);
                     const rotateAngle = (Math.random() * 2 - 1) * maxAngle;
 
@@ -311,28 +313,6 @@
             ctx.save();
             ctx.scale(dpr, dpr); 
 
-            // 📌 繪製左上角雲朵對話框標題區
-            ctx.save();
-            const cloudW = 340 * scaleFactor; 
-            const cloudH = 115 * scaleFactor; 
-            const cloudX = 5;
-            const cloudY = -12; 
-
-            if (cloudImg.width > 0) {
-                ctx.drawImage(cloudImg, cloudX, cloudY, cloudW, cloudH);
-            }
-
-            const titleSize = 22 * scaleFactor; 
-            ctx.font = `bold ${titleSize}px ${fontName}`;
-            ctx.fillStyle = titleColor;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            
-            const textCenterX = cloudX + (cloudW * 0.44); 
-            const textCenterY = cloudY + (cloudH * 0.54);
-            ctx.fillText(titleText, textCenterX, textCenterY);
-            ctx.restore();
-
             // 第一層：普通文字繪製
             words.forEach((word, idx) => {
                 if (idx === activeIndex) return; 
@@ -346,7 +326,6 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
-                // 渲染多行文字
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
                         const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.25);
@@ -358,7 +337,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂 🔮 自適應多行正圓形聚光燈（完美適應多行，長高全包覆）
+            // 第二層：置頂 🔮 自適應多行正圓形聚光燈（圓型大小自適應包覆）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -366,8 +345,7 @@
                 const targetSize = word.baseSize * 1.12; 
                 word.currentSize += (targetSize - word.currentSize) * 0.1;
                 
-                // 🔮 重新計算高光半徑：精確測量多行文字加總後的真實對角線，加上 18px 舒適寬裕邊界
-                // 不論分兩行、三行，圓形都絕不穿幫，完美包覆
+                // 🔒【重要修復點 2】：優化多行對角線量測公式，保證多行手動空格句高光正圓形舒適包覆
                 const textDiagonal = Math.sqrt(word.w * word.w + word.h * word.h);
                 const radius = (textDiagonal / 2) + (18 * scaleFactor); 
                 
@@ -377,7 +355,6 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 物理邊界防裁切
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
                 if (renderY - radius < 95 * scaleFactor) renderY = radius + 95 * scaleFactor;
@@ -386,13 +363,11 @@
                 ctx.translate(renderX, renderY);
                 ctx.rotate(word.angle);
 
-                // 繪製正圓形灰底
                 ctx.beginPath();
                 ctx.fillStyle = `rgba(95, 95, 95, ${0.78 * highlightProgress})`; 
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // 聚光燈純白字
                 ctx.fillStyle = `rgba(255, 255, 255, ${highlightProgress})`;
                 ctx.font = `bold ${word.currentSize}px ${fontName}`;
                 ctx.textAlign = 'center';
