@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 16.0</title>
+    <title>【未來許願機】夢想狂想文字雲 17.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -66,11 +66,12 @@
             object-fit: contain; 
         }
 
-        /* 大標題精準固定錨定在雲朵底部視覺線 */
+        /* 🔒 終極校正：大標題字體不論電腦手機，都完美置中於雲朵核心 */
         .title-cloud-text {
             position: absolute;
             left: 44.5%;
-            top: 61%; 
+            top: 55.5%; /* 🔮 精準移回雲朵正中心腹地 */
+            transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
             font-size: 28px; 
@@ -92,6 +93,7 @@
             }
             .title-cloud-text {
                 font-size: 25px; 
+                top: 56.5%; /* 🔮 手機版微調，確保不偏上 */
             }
         }
     </style>
@@ -109,7 +111,7 @@
 
     <script>
         // ===================================================================
-        // ✨ 策展人專區二：手動精選回答（行行遵守5字上限、單詞不切斷）
+        // ✨ 策展人專區二：手動精選回答（每一行都遵守5字上限、單詞不切斷）
         // ===================================================================
         const bigWords = [
             "希望在成功湖畔釣到大魚", "微積分一定要歐趴！", "每天都有睡飽8小時", 
@@ -149,7 +151,7 @@
 
         const fontName = "'MyCustomFont', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
 
-        // 直接啟動文字雲，防止非同步鎖死
+        // 直接啟動
         initWordCloud();
 
         function initWordCloud() {
@@ -172,7 +174,7 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 16.0 終極穩定安全版：智慧語意斷行演算法
+        // 智慧語意分詞演算法（穩定安全版）
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
@@ -188,30 +190,26 @@
             else {
                 let remainingText = text;
                 
-                // 安全指針向後爬行法
                 while (remainingText.length > 0) {
                     if (remainingText.length <= 5) {
                         lines.push(remainingText);
                         break;
                     }
                     
-                    let breakIdx = 5; // 預設單行切 5 個字
+                    let breakIdx = 5; 
                     
-                    // 🔒 修正打架盲點：只有當剩餘字數真的大於 5 的時候，才去掃描有沒有專有名詞橫跨在第 5、6 字中間
                     for (let keyword of segmentKeywords) {
                         const kIdx = remainingText.indexOf(keyword);
-                        // 確保關鍵字起點在前 5 字內，且長度確實跨越了第 5 字的邊界
                         if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
                             if (kIdx > 0) {
-                                breakIdx = kIdx; // 提前在單詞前切斷
+                                breakIdx = kIdx;
                             } else {
-                                breakIdx = keyword.length; // 如果正好在開頭，完整保留該詞
+                                breakIdx = keyword.length;
                             }
                             break;
                         }
                     }
                     
-                    // 🔒 終極防禦鎖：如果因為任何極端原因導致 breakIdx 小於等於 0，強制切 1 個字前進，100% 杜絕死循環！
                     if (breakIdx <= 0 || breakIdx > remainingText.length) {
                         breakIdx = 5;
                     }
@@ -237,27 +235,29 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 天花板安全防撞區（拓展至 135px，確保灰色光圈不碰到雲朵標題）
+            // 天花板安全防撞區（給予聚光燈絕對安全區）
             const titleHeightBoundary = 135 * scaleFactor; 
 
-            // 1. 部署 12 個精選大字
+            // 1. 部署 12 個精選大字（🔮 尺寸調高，確保呈現霸氣手寫風）
             bigWords.forEach((text, idx) => {
-                const baseSize = 42 - (idx * 1.1); 
+                const baseSize = 48 - (idx * 1.0); 
                 const size = baseSize * scaleFactor; 
-                addWordRandomScatter(text, size, true, idx, W * 0.16, W * 0.84, titleHeightBoundary, H * 0.80, 40 * scaleFactor);
+                addWordRandomScatter(text, size, true, idx, W * 0.15, W * 0.85, titleHeightBoundary, H * 0.82, 38 * scaleFactor);
             });
 
-            // 2. 部署填充小字
-            const maxSmallWords = 50; 
+            // 2. 部署填充小字（🔮 全面拉大基礎尺寸！手機版最底限維持在 21px 以上，與藍圈圈一致）
+            const maxSmallWords = 42; // 適度減少密度，把珍貴的畫布空間留給「變大後」的精緻字體
             let attempts = 0;
             
             while (words.length < (bigWords.length + maxSmallWords) && attempts < 4000) {
                 attempts++;
                 const text = smallWordsPool[attempts % smallWordsPool.length];
-                const baseSize = 19 + (attempts % 6) + (Math.random() * 0.5);
+                
+                // 🔮 讓背景填充小字的基礎尺寸大幅提升
+                const baseSize = 21 + (attempts % 5) + (Math.random() * 0.5);
                 const size = baseSize * scaleFactor; 
                 
-                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 16 * scaleFactor)) {
+                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 20 * scaleFactor)) {
                 }
             }
         }
@@ -271,7 +271,7 @@
             const H = canvas.height / dpr;
             
             let localAttempts = 0;
-            while (localAttempts < 500) {
+            while (localAttempts < 600) {
                 localAttempts++;
                 const x = Math.random() * (maxX - minX) + minX;
                 const y = Math.random() * (maxY - minY) + minY;
