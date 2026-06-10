@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 11.2</title>
+    <title>【未來許願機】夢想狂想文字雲 11.3</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -115,7 +115,7 @@
         // ===================================================================
         const bigWords = [
             "在成功湖畔  釣到大魚", 
-            "微積分  裝作聽得懂",       
+            "微積分  裝作聽得懂！",       
             "每天都睡飽  8小時", 
             "交到  男女朋友", 
             "帥到直接出道",       
@@ -134,8 +134,8 @@
         const smallWordsPool = [
             "歐趴", "天天開心  沒煩惱", "實習順利", "進入竹科", "台積電報到", "錄取聯發科", "成功湖划船", 
             "週末去夜唱", "總圖待一整天", "逛宵夜街", "水木變好吃", "大吃美食", "巨城逛到腳痠", "用九降風  放風箏", 
-            "畢旅平安", "瀏海不會裂開", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", "絕不延畢",
-            "梅竹選我", "熱血夜衝", "青春環島", "100分", "大吉", "未來狂想曲", "夢想實現", "E人都揪起來","告白",
+            "畢旅環遊世界", "瀏海不會裂開", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", "絕不延畢",
+            "梅竹選我", "熱血夜衝", "青春環島", "100分", "大吉", "未來狂想曲", "夢想實現", "E人都給我  揪起來","告白",
             "不迷惘", "加油", "抽中宿舍", "冷氣很涼", "WiFi超快", "早八不遲到","我是I人我驕傲",
             "歐趴糖", "颱風天放假", "賺大錢", "不掉傘", "脫單", "翹課不會被點到","逛新竹動物園"
         ];
@@ -159,11 +159,9 @@
 
         const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
 
-        // 🔒【重要修復點 1】：重新補上雲朵圖片物件宣告，徹底防止 Canvas 渲染報錯中斷
         const cloudImg = new Image();
         cloudImg.src = 'cloud.gif'; 
 
-        // 確保字體與瀏覽器環境準備完成後啟動文字雲
         document.fonts.ready.then(() => {
             initWordCloud();
         });
@@ -188,17 +186,14 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 度量器：完美支援手動「雙空格」分行與保底自動換行規則
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
             
-            // 🛑 核心規則一：不論中英文，優先檢查字詞之間是否包含「2個以上的半形空格」
             if (text.includes('  ')) {
                 lines = text.split(/ {2,}/).map(line => line.trim()).filter(line => line.length > 0);
             } 
-            // 🛑 核心規則二：若沒有手動空格，則觸發原本的保底自動智慧斷行
             else {
                 const wordsArr = text.split(' ');
                 if (wordsArr.length > 2) {
@@ -222,7 +217,6 @@
                 }
             }
 
-            // 精確測量文字在 Canvas 上的總寬度與總高度
             let maxWidth = 0;
             lines.forEach(line => {
                 const w = ctx.measureText(line).width;
@@ -238,7 +232,9 @@
             words = [];
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
-            const titleHeightBoundary = 95 * scaleFactor; 
+            
+            // 🔒【優化點 1】：將防撞安全天花板下推至 135，確保文字雲全體與標題拉開絕對安全距離
+            const titleHeightBoundary = 135 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
             bigWords.forEach((text, idx) => {
@@ -337,7 +333,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂 🔮 自適應多行正圓形聚光燈（圓型大小自適應包覆）
+            // 第二層：置頂自適應多行正圓形聚光燈
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -345,7 +341,6 @@
                 const targetSize = word.baseSize * 1.12; 
                 word.currentSize += (targetSize - word.currentSize) * 0.1;
                 
-                // 🔒【重要修復點 2】：優化多行對角線量測公式，保證多行手動空格句高光正圓形舒適包覆
                 const textDiagonal = Math.sqrt(word.w * word.w + word.h * word.h);
                 const radius = (textDiagonal / 2) + (18 * scaleFactor); 
                 
@@ -355,9 +350,12 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
+                // 🔒【優化點 2】：嚴格限制高光圓圈的最上緣，絕對不可小於 titleHeightBoundary，防止擦到標題
+                const topCeiling = 120 * scaleFactor; 
+
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
-                if (renderY - radius < 95 * scaleFactor) renderY = radius + 95 * scaleFactor;
+                if (renderY - radius < topCeiling) renderY = radius + topCeiling; // 完美防擦邊反彈限制
                 if (renderY + radius > H - 15) renderY = H - radius - 15;
 
                 ctx.translate(renderX, renderY);
