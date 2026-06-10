@@ -1,3 +1,4 @@
+HTML
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -10,7 +11,7 @@
         /* ========================================================== */
         @font-face {
             font-family: 'MyCustomFont';
-            src: url('StarPandaKidsBeta2.1.ttf') format('truetype'); /* ⚠️ 請確保與您的 ttf 檔名完全一致 */
+            src: url('your-font.ttf') format('truetype'); /* ⚠️ 請確保與您的 ttf 檔名完全一致 */
         }
 
         * { box-sizing: border-box; }
@@ -25,7 +26,7 @@
             overflow: hidden;
         }
 
-        /* 文字雲外殼：畫布底色為純白，圓角化並加上淡紫色立體陰影 */
+        /* 文字雲外殼：純白底、圓角化、加溫柔陰影 */
         .wordcloud-wrapper {
             position: relative;
             width: 100%;
@@ -35,9 +36,43 @@
             border-radius: 20px; 
             box-shadow: 0 12px 40px rgba(169, 156, 199, 0.25);
             overflow: hidden;
+        }
+
+        /* 🔮 新增：獨立出來的雲朵標題複合圖層（保證 GIF 會動且不變形） */
+        .title-cloud-container {
+            position: absolute;
+            top: -5px;
+            left: 5px;
+            z-index: 50; /* 永遠置頂在文字雲之上 */
             display: flex;
             justify-content: center;
             align-items: center;
+            /* 電腦版寬高 */
+            width: 360px;
+            height: 120px;
+            transform-origin: top left;
+        }
+
+        /* 標題 GIF 圖檔樣式 */
+        .title-cloud-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 🔒 保證原比例，絕對不變形 */
+        }
+
+        /* 🔮 有感放大至 28px 的獨立大標題文字 */
+        .title-cloud-text {
+            position: absolute;
+            /* 經過精密測算，完美置中於雲朵腹部的黃金座標位置 */
+            left: 44.5%;
+            top: 54%;
+            transform: translate(-50%, -50%);
+            font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
+            font-weight: bold;
+            font-size: 28px; /* 🔒 鎖定 28px 特大字體 */
+            color: #A39E93; /* 🎨 淺卡其灰 */
+            white-space: nowrap;
+            pointer-events: none; /* 防止干擾滑鼠點擊 */
         }
 
         canvas {
@@ -45,11 +80,26 @@
             height: 100%;
             display: block;
         }
+
+        /* 🔮 手機版 (寬度小於500) 專屬的響應式 RWD 縮放控制 */
+        @media (max-width: 500px) {
+            .title-cloud-container {
+                transform: scale(0.72); /* 手機版自動等比例縮放外殼 */
+            }
+            .title-cloud-text {
+                font-size: 26px; /* 手機版稍微收斂至舒適的 26px，確保絕不溢出雲朵 */
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="wordcloud-wrapper">
+        <div class="title-cloud-container">
+            <img src="cloud.gif" alt="Cloud Layout">
+            <div class="title-cloud-text">看看其他人都在許什麼願？</div>
+        </div>
+        
         <canvas id="cloudCanvas"></canvas>
     </div>
 
@@ -70,10 +120,10 @@
         const smallWordsPool = [
             "歐趴", "天天開心沒煩惱", "實習順利", "錄取竹科", "台積電報到", "聯發科等我", "成功湖", 
             "週末去夜唱", "總圖待一整天", "逛宵夜街", "水木變好吃", "大吃美食", "巨城逛到腳痠", "用九降風放風箏", 
-            "畢旅平安", "瀏海不會裂開", "下課時間比上課長", "一直睡覺", "修滿學分", "通通選到", "加簽成功", "專心看書", 
+            "畢旅平安", "瀏海不會裂開", "下課時間比上課長", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", 
             "梅竹選我", "熱血", "青春", "100分", "大吉", "未來狂想曲", "夢想實現", "E人都揪起來",
             "不迷惘", "加油", "抽中宿舍", "冷氣很涼", "WiFi超快", "早八不遲到","我是I人我驕傲",
-            "歐趴糖", "颱風天放假", "賺大錢", "不掉傘", "脫單", "翹課不會被點到"
+            "歐趴糖", "颱風天放假", "賺大錢", "不掉傘", "脫單", "翹課不會被點到","逛新竹動物園"
         ];
 
         // 🎨 莫蘭迪繽紛色系矩陣
@@ -93,27 +143,10 @@
         let dpr = window.devicePixelRatio || 1;
         let scaleFactor = 1; 
 
-        // 客製化字體與固定標題樣式設定
         const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
-        const titleText = "看看其他人都在許什麼願？";
-        const titleColor = "#A39E93"; // 🎨 淺卡其灰
 
-        // 🔮 載入雲朵對話框圖檔
-        const cloudImg = new Image();
-        cloudImg.src = 'cloud.gif'; // ⚠️ 請確保與您的 gif 檔名一致並存在同目錄
-
-        // 🔒 雙重保險異步載入鎖：確保字體和圖片都 100% 好了才准初始化畫布
-        Promise.all([
-            document.fonts.ready,
-            new Promise((resolve) => {
-                if (cloudImg.complete) {
-                    resolve();
-                } else {
-                    cloudImg.onload = () => resolve();
-                    cloudImg.onerror = () => resolve(); // 防止圖片失效卡死網頁
-                }
-            })
-        ]).then(() => {
+        // 🔒 只等待自訂字體載入，雲朵 GIF 交給瀏覽器原生渲染
+        document.fonts.ready.then(() => {
             initWordCloud();
         });
 
@@ -129,7 +162,8 @@
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
             dpr = window.devicePixelRatio || 1;
-            scaleFactor = rect.width < 500 ? 0.65 : 1.0;
+            // 手機版稍微調節文字間距因子
+            scaleFactor = rect.width < 500 ? 0.72 : 1.0;
 
             canvas.width = rect.width * dpr;
             canvas.height = rect.height * dpr;
@@ -180,27 +214,29 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 🔒 配合加大標題與雲朵圖檔，拉高安全天花板防撞邊界
-            const titleHeightBoundary = 95 * scaleFactor; 
+            // 🔒 因應新雲朵圖層位置，將安全防撞天花板上推
+            const titleHeightBoundary = 85 * scaleFactor; 
 
-            // 1. 部署 12 個精選大字
+            // 1. 部署 12 個精選大字（尺寸升級，手機版也清晰無比）
             bigWords.forEach((text, idx) => {
-                const baseSize = 38 - (idx * 1.2); 
+                const baseSize = 42 - (idx * 1.1); 
                 const size = baseSize * scaleFactor; 
-                addWordRandomScatter(text, size, true, idx, W * 0.16, W * 0.84, titleHeightBoundary, H * 0.82, 35 * scaleFactor);
+                addWordRandomScatter(text, size, true, idx, W * 0.16, W * 0.84, titleHeightBoundary, H * 0.82, 36 * scaleFactor);
             });
 
-            // 2. 部署填充小字
-            const maxSmallWords = 60;
+            // 2. 部署填充小字（🔮 全面拉大基準線！以您圈起來的大小為底限，字字清晰）
+            const maxSmallWords = 55; // 稍微收斂總數，讓變大後的小字有寬裕的防撞空間
             let attempts = 0;
             
             while (words.length < (bigWords.length + maxSmallWords) && attempts < 4000) {
                 attempts++;
                 const text = smallWordsPool[attempts % smallWordsPool.length];
-                const baseSize = 13 + (attempts % 10) + (Math.random() * 0.5);
+                
+                // 🔮 修正關鍵：手機版基礎字體拉高到 18px ~ 24px (以藍圈圈大小為出發點)
+                const baseSize = 19 + (attempts % 6) + (Math.random() * 0.5);
                 const size = baseSize * scaleFactor; 
                 
-                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 10 * scaleFactor)) {
+                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 15 * scaleFactor)) {
                 }
             }
         }
@@ -256,31 +292,6 @@
             ctx.save();
             ctx.scale(dpr, dpr); 
 
-            // 📌 繪製左上角雲朵對話框標題區
-            ctx.save();
-            const cloudW = 340 * scaleFactor; // 寬度稍微加寬
-            const cloudH = 115 * scaleFactor; // 高度稍微加高
-            const cloudX = 5;
-            const cloudY = -12; 
-
-            // 確保雲朵對話框 GIF 100% 存在才繪製
-            if (cloudImg.width > 0) {
-                ctx.drawImage(cloudImg, cloudX, cloudY, cloudW, cloudH);
-            }
-
-            // 🔮 大字體高辨識度標題（字體有感放大至 22px）
-            const titleSize = 22 * scaleFactor; 
-            ctx.font = `bold ${titleSize}px ${fontName}`;
-            ctx.fillStyle = titleColor;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            
-            // 雲朵白色核心黃金交點
-            const textCenterX = cloudX + (cloudW * 0.44); 
-            const textCenterY = cloudY + (cloudH * 0.54);
-            ctx.fillText(titleText, textCenterX, textCenterY);
-            ctx.restore();
-
             // 第一層：普通文字
             words.forEach((word, idx) => {
                 if (idx === activeIndex) return; 
@@ -305,7 +316,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂 🔮 智慧自適應小圓型聚光燈（大小字自適應，縮放黃金比例）
+            // 第二層：置頂 🔮 智慧中等大圓自適應聚光燈（大小字自適應，範圍完美舒適）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -313,9 +324,9 @@
                 const targetSize = word.baseSize * 1.12; 
                 word.currentSize += (targetSize - word.currentSize) * 0.1;
                 
-                // 🔮 圓形聚光燈半徑計算：依據文字實際總寬度或高度，加上寬裕的緩衝，保證大字大圓、小字小圓
+                // 🔮 完美黃金光圈半徑：取對角線長度並給予舒適緩衝，保證大小適中、絕不切字
                 const textDiagonal = Math.sqrt(word.w * word.w + word.h * word.h);
-                const radius = (textDiagonal / 2) + (14 * scaleFactor); 
+                const radius = (textDiagonal / 2) + (18 * scaleFactor); 
                 
                 let renderX = word.x;
                 let renderY = word.y;
@@ -323,22 +334,22 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 物理邊界反彈
+                // 邊界物理反彈
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
-                if (renderY - radius < 95 * scaleFactor) renderY = radius + 95 * scaleFactor;
+                if (renderY - radius < 85 * scaleFactor) renderY = radius + 85 * scaleFactor;
                 if (renderY + radius > H - 15) renderY = H - radius - 15;
 
                 ctx.translate(renderX, renderY);
                 ctx.rotate(word.angle);
 
-                // 畫出明確、自適應包裹的「圓形」半透明灰底
+                // 圓形半透明底框
                 ctx.beginPath();
-                ctx.fillStyle = `rgba(90, 90, 90, ${0.78 * highlightProgress})`; 
+                ctx.fillStyle = `rgba(95, 95, 95, ${0.78 * highlightProgress})`; 
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // 聚光燈純白反白字
+                // 聚光燈純白字
                 ctx.fillStyle = `rgba(255, 255, 255, ${highlightProgress})`;
                 ctx.font = `bold ${word.currentSize}px ${fontName}`;
                 ctx.textAlign = 'center';
