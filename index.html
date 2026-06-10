@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 8.0</title>
+    <title>【未來許願機】夢想狂想文字雲 9.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
-        /* 請確保您上傳的 .ttf 檔案與此 html 放在同一個根目錄下 */
         /* ========================================================== */
         @font-face {
             font-family: 'MyCustomFont';
@@ -60,7 +59,7 @@
         // ===================================================================
         const bigWords = [
             "希望在成功湖畔釣到大魚", "微積分一定要歐趴！", "每天都有睡飽8小時", 
-            "交到男女朋友", "Logic Pro 神曲產出", "希望能跟校長合照", 
+            "交到男女朋友", "Logic Pro神曲產出", "希望能跟校長合照", 
             "被新竹的風吹到免修體育", "腳踏車永遠不被偷", "順利兩年準時畢業", 
             "碩論一次就過關", "梅竹賽清大總錦標", "一定要拿到書卷獎"
         ];
@@ -84,7 +83,7 @@
             "#D47A2A", "#E69549", "#F5B070", "#FFCC80", "#FFE0B2", // 柔橘
             "#2E6930", "#438A47", "#66BB6A", "#A5D6A7", "#C8E6C9", // 嫩綠
             "#B84A6E", "#D1648A", "#E682A5", "#F48FB1", "#F8BBD0"  // 柔粉
-        ];
+      ];
 
         const canvas = document.getElementById('cloudCanvas');
         const ctx = canvas.getContext('2d');
@@ -94,10 +93,24 @@
         let dpr = window.devicePixelRatio || 1;
         let scaleFactor = 1; 
 
-        // 客製化字體與固定標題樣式
+        // 客製化字體與固定標題樣式設定
         const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
         const titleText = "看看其他人都在許什麼願？";
         const titleColor = "#A39E93"; // 🎨 淺卡其灰
+
+        // 🔮 載入雲朵對話框圖檔
+        const cloudImg = new Image();
+        cloudImg.src = 'cloud.gif'; // ⚠️ 請確保與您的 gif 檔名一致並存在同目錄
+
+        cloudImg.onload = () => {
+            // 確保圖片載入完畢後再初始化
+            if(words.length === 0) initWordCloud();
+        };
+
+        // 防止圖片載入過慢的保底啟動機制
+        setTimeout(() => {
+            if (words.length === 0) initWordCloud();
+        }, 500);
 
         function initWordCloud() {
             resizeCanvas();
@@ -119,31 +132,26 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 依據新限制進行精準斷行（中文限6字，英文限2個單字）
+        // 🔮 依據限制進行精準斷行（中文限6字，英文限2個單字）
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
-            
-            // 偵測是否含有英文單字（以空格拆分）
             const wordsArr = text.split(' ');
             
             if (wordsArr.length > 2) {
-                // 英文超過 2 個單字，強制將前 2 個單字留第一行，其餘留第二行
                 const firstLine = wordsArr.slice(0, 2).join(' ');
                 const secondLine = wordsArr.slice(2).join(' ');
                 lines.push(firstLine);
                 lines.push(secondLine);
             } else if (text.length > 6 && !text.includes(' ')) {
-                // 純中文且長度超過 6 個字，進行智慧語意斷句
                 if (text.includes("成功湖畔")) {
-                    lines.push(text.substring(0, 6)); // 希望在成功湖畔 (剛好6字)
-                    lines.push(text.substring(6));    // 釣到大魚
+                    lines.push(text.substring(0, 6)); 
+                    lines.push(text.substring(6));    
                 } else if (text.includes("被新竹的風吹到")) {
-                    lines.push("被新竹的風吹到"); // (6字)
-                    lines.push(text.replace("被新竹的風吹到", ""));
+                    lines.push("被新竹的風吹到"); 
+                    lines.push(text.replace("Space", "").replace("被新竹的風吹到", ""));
                 } else {
-                    // 其他中文字词默認切出前 6 個字
                     lines.push(text.substring(0, 6));
                     lines.push(text.substring(6));
                 }
@@ -167,15 +175,14 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 🔒 建立安全天花板：計算左上角固定標題所佔用的 Y 軸高度範圍
-            const titleHeightBoundary = 55 * scaleFactor; 
+            // 🔒 配合更大標題與雲朵圖檔，拉高安全天花板防撞邊界
+            const titleHeightBoundary = 90 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
             bigWords.forEach((text, idx) => {
-                const baseSize = 38 - (idx * 1.2); // 微調字體使畫面更平衡
+                const baseSize = 38 - (idx * 1.2); 
                 const size = baseSize * scaleFactor; 
-                // 將最小限制設定在天花板 (titleHeightBoundary) 之下
-                addWordRandomScatter(text, size, true, idx, W * 0.15, W * 0.85, titleHeightBoundary, H * 0.82, 35 * scaleFactor);
+                addWordRandomScatter(text, size, true, idx, W * 0.16, W * 0.84, titleHeightBoundary, H * 0.82, 35 * scaleFactor);
             });
 
             // 2. 部署填充小字
@@ -188,7 +195,6 @@
                 const baseSize = 13 + (attempts % 10) + (Math.random() * 0.5);
                 const size = baseSize * scaleFactor; 
                 
-                // 小字同樣限制在天花板之下，不破壞表格排版概念
                 if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 10 * scaleFactor)) {
                 }
             }
@@ -208,7 +214,6 @@
                 const x = Math.random() * (maxX - minX) + minX;
                 const y = Math.random() * (maxY - minY) + minY;
 
-                // 邊界防溢出
                 if (x - w/2 < 12 || x + w/2 > W - 12 || y - h/2 < minY || y + h/2 > H - 12) {
                     continue;
                 }
@@ -223,7 +228,6 @@
                 }
 
                 if (!isOverlapping) {
-                    // 長字體與強調節點角度微平，短字體維持最大30度隨機靈動旋轉
                     const maxAngle = (isHighlight || dims.lines.length > 1) ? (3 * Math.PI / 180) : (25 * Math.PI / 180);
                     const rotateAngle = (Math.random() * 2 - 1) * maxAngle;
 
@@ -247,14 +251,29 @@
             ctx.save();
             ctx.scale(dpr, dpr); 
 
-            // 📌 繪製左上角固定靜態標題（Word 表格概念，尺寸介於中間值，卡其灰）
+            // 📌 繪製左上角雲朵對話框標題區
             ctx.save();
-            const titleSize = 22 * scaleFactor;
+            // 自動適應手機/電腦動態縮放雲朵外框寬高
+            const cloudW = 320 * scaleFactor;
+            const cloudH = 110 * scaleFactor;
+            const cloudX = 5;
+            const cloudY = -10; // 讓稍微往外推更自然
+
+            // 在標題背後繪製您提供的雲朵對話框 GIF
+            if (cloudImg.complete && cloudImg.width > 0) {
+                ctx.drawImage(cloudImg, cloudX, cloudY, cloudW, cloudH);
+            }
+
+            // 🔮 大字體高辨識度標題（置中精準對齊於雲朵內部腹地）
+            const titleSize = 17.5 * scaleFactor; // 字體放大增強氣勢
             ctx.font = `bold ${titleSize}px ${fontName}`;
             ctx.fillStyle = titleColor;
-            ctx.textAlign = "left";
-            ctx.textBaseline = "top";
-            ctx.fillText(titleText, 20, 20); // 固定左上角邊距
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            // 雲朵白色核心的物理黃金交點
+            const textCenterX = cloudX + (cloudW * 0.44); 
+            const textCenterY = cloudY + (cloudH * 0.54);
+            ctx.fillText(titleText, textCenterX, textCenterY);
             ctx.restore();
 
             // 第一層：普通文字
@@ -281,7 +300,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂 🔮 完美圓型聚光燈（Spotlight 效果更明確）
+            // 第二層：置頂 🔮 智慧自適應小圓型聚光燈（防爆框、範圍更小更精緻）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -289,8 +308,8 @@
                 const targetSize = word.baseSize * 1.12; 
                 word.currentSize += (targetSize - word.currentSize) * 0.1;
                 
-                // 🔮 圓形聚光燈半徑計算：取文字方塊對角線，並給予適當內縮緩衝
-                const radius = (Math.max(word.w, word.h) * 0.68);
+                // 🔮 縮小半徑：改由長寬平均值去算圓形，範圍更緊實精緻
+                const radius = ((word.w + word.h) / 2) * 0.56;
                 
                 let renderX = word.x;
                 let renderY = word.y;
@@ -298,22 +317,22 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 🔒 嚴格的圓形視窗防爆框反彈機制
+                // 物理邊界反彈
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
-                if (renderY - radius < 55 * scaleFactor) renderY = radius + 55 * scaleFactor;
+                if (renderY - radius < 90 * scaleFactor) renderY = radius + 90 * scaleFactor;
                 if (renderY + radius > H - 15) renderY = H - radius - 15;
 
                 ctx.translate(renderX, renderY);
                 ctx.rotate(word.angle);
 
-                // 畫出明確的「圓形」半透明灰底
+                // 畫出明確、小巧的「圓形」半透明灰底
                 ctx.beginPath();
                 ctx.fillStyle = `rgba(95, 95, 95, ${0.78 * highlightProgress})`; 
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
                 ctx.fill();
 
-                // 聚光燈純白字
+                // 聚光燈純白反白字
                 ctx.fillStyle = `rgba(255, 255, 255, ${highlightProgress})`;
                 ctx.font = `bold ${word.currentSize}px ${fontName}`;
                 ctx.textAlign = 'center';
@@ -335,13 +354,13 @@
         }
 
         function triggerSpotlight() {
-            const highlightPool = words.reduce((acc, w, i) => w.isHighlight ? [...acc, i] : acc, []);
-            if (highlightPool.length === 0) return;
-
+            if (words.length === 0) return;
+            
+            // 🔮 核心調整：不再過濾 isHighlight，直接開放全體 words 陣列的所有詞句隨機參與！
             let nextIdx;
             do {
-                nextIdx = highlightPool[Math.floor(Math.random() * highlightPool.length)];
-            } while (nextIdx === activeIndex && highlightPool.length > 1);
+                nextIdx = Math.floor(Math.random() * words.length);
+            } while (nextIdx === activeIndex && words.length > 1);
 
             activeIndex = nextIdx;
             highlightProgress = 0;
@@ -366,7 +385,6 @@
             }, 2300);
         }
 
-        // 監聽圖書館客製化字體完全載入後啟動
         document.fonts.ready.then(() => {
             initWordCloud();
         });
