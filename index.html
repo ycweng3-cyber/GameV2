@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 17.0</title>
+    <title>【未來許願機】夢想狂想文字雲 12.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -34,7 +34,7 @@
             font-size: 1rem;
         }
 
-        /* 文字雲外殼 */
+        /* 文字雲外殼：稍微加長總高度至 520px，提供更寬裕的垂直散落空間 */
         .wordcloud-wrapper {
             position: relative;
             width: 100%;
@@ -46,7 +46,7 @@
             overflow: hidden;
         }
 
-        /* 雲朵標題複合區 */
+        /* 雲朵標題複合區：微調使定位更穩定 */
         .title-cloud-container {
             position: absolute;
             top: -10px;
@@ -66,11 +66,11 @@
             object-fit: contain; 
         }
 
-        /* 🔒 終極校正：大標題字體不論電腦手機，都完美置中於雲朵核心 */
+        /* 🔮 修改：將大標題精準固定錨定在雲朵圖檔的偏底部黃金視覺線 */
         .title-cloud-text {
             position: absolute;
             left: 44.5%;
-            top: 55.5%; /* 🔮 精準移回雲朵正中心腹地 */
+            top: 59%; /* 稍微下移，使其穩穩落在雲朵底部 */
             transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
@@ -93,7 +93,6 @@
             }
             .title-cloud-text {
                 font-size: 25px; 
-                top: 56.5%; /* 🔮 手機版微調，確保不偏上 */
             }
         }
     </style>
@@ -111,10 +110,10 @@
 
     <script>
         // ===================================================================
-        // ✨ 策展人專區二：手動精選回答（每一行都遵守5字上限、單詞不切斷）
+        // ✨ 策展人專區二：手動精選回答（會依【單行不超5字、完整單詞不切斷】智慧斷行）
         // ===================================================================
         const bigWords = [
-            "希望在成功湖畔釣到大魚", "不要被當掉！", "每天睡飽8小時", 
+            "希望在成功湖畔釣到大魚", "不要被當掉", "每天睡飽8小時", 
             "交到男女朋友", "直接出道", "希望能跟校長合照", 
             "被新竹的風吹到免修體育", "腳踏車永遠不被偷", "順利兩年準時畢業", 
             "碩論一次就過關", "梅竹賽清大總錦標", "一定要拿到書卷獎"
@@ -149,10 +148,11 @@
         let dpr = window.devicePixelRatio || 1;
         let scaleFactor = 1; 
 
-        const fontName = "'MyCustomFont', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
+        const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
 
-        // 直接啟動
-        initWordCloud();
+        document.fonts.ready.then(() => {
+            initWordCloud();
+        });
 
         function initWordCloud() {
             resizeCanvas();
@@ -174,49 +174,42 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 智慧語意分詞演算法（穩定安全版）
+        // 🔮 升級版：清大專屬「5字上限 x 完整單詞防切斷」智慧語意斷行演算法
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
             
+            // 內建專利核心詞庫：只要跨過5字邊界，強制整包詞提前換行
             const segmentKeywords = ["微積分", "成功湖", "腳踏車", "工程師", "聯發科", "台積電", "歐趴糖", "圖書館", "免修體育", "總錦標", "書卷獎", "男女朋友", "神曲產出"];
             
+            // 處理英文空格斷句
             const wordsArr = text.split(' ');
             if (wordsArr.length > 2) {
                 lines.push(wordsArr.slice(0, 2).join(' '));
                 lines.push(wordsArr.slice(2).join(' '));
             } 
-            else {
-                let remainingText = text;
+            // 處理中文 5 字上限邏輯
+            else if (text.length >= 5 && !text.includes(' ')) {
+                let breakIdx = 5; // 默認最大容許值 5 字
                 
-                while (remainingText.length > 0) {
-                    if (remainingText.length <= 5) {
-                        lines.push(remainingText);
+                // 掃描是否有關鍵字跨在切點上
+                for (let keyword of segmentKeywords) {
+                    const kIdx = text.indexOf(keyword);
+                    // 如果關鍵字存在，且剛好跨在第 5 個字的前後
+                    if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
+                        breakIdx = kIdx; // 🔒 提前在單詞之前進行分行
                         break;
                     }
-                    
-                    let breakIdx = 5; 
-                    
-                    for (let keyword of segmentKeywords) {
-                        const kIdx = remainingText.indexOf(keyword);
-                        if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
-                            if (kIdx > 0) {
-                                breakIdx = kIdx;
-                            } else {
-                                breakIdx = keyword.length;
-                            }
-                            break;
-                        }
-                    }
-                    
-                    if (breakIdx <= 0 || breakIdx > remainingText.length) {
-                        breakIdx = 5;
-                    }
-                    
-                    lines.push(remainingText.substring(0, breakIdx));
-                    remainingText = remainingText.substring(breakIdx);
                 }
+                
+                // 防呆機制：如果提前切斷導致第一行為空，則恢復原本切法
+                if (breakIdx === 0) breakIdx = 5;
+
+                lines.push(text.substring(0, breakIdx));
+                lines.push(text.substring(breakIdx));
+            } else {
+                lines.push(text);
             }
 
             let maxWidth = 0;
@@ -226,7 +219,7 @@
             });
             ctx.restore();
 
-            const h = lines.length > 1 ? (size * (1.0 + (lines.length - 1) * 1.35)) : size;
+            const h = lines.length > 1 ? (size * 1.9) : size;
             return { lines, width: maxWidth + 14, height: h + 10 };
         }
 
@@ -235,29 +228,27 @@
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 天花板安全防撞區（給予聚光燈絕對安全區）
+            // 🔒 核心微調：將 Y 軸天花板防撞邊界從 95 拓展拉開到 135，給聚光燈絕對安全區
             const titleHeightBoundary = 135 * scaleFactor; 
 
-            // 1. 部署 12 個精選大字（🔮 尺寸調高，確保呈現霸氣手寫風）
+            // 1. 部署 12 個精選大字
             bigWords.forEach((text, idx) => {
-                const baseSize = 48 - (idx * 1.0); 
+                const baseSize = 42 - (idx * 1.1); 
                 const size = baseSize * scaleFactor; 
-                addWordRandomScatter(text, size, true, idx, W * 0.15, W * 0.85, titleHeightBoundary, H * 0.82, 38 * scaleFactor);
+                addWordRandomScatter(text, size, true, idx, W * 0.16, W * 0.84, titleHeightBoundary, H * 0.82, 36 * scaleFactor);
             });
 
-            // 2. 部署填充小字（🔮 全面拉大基礎尺寸！手機版最底限維持在 21px 以上，與藍圈圈一致）
-            const maxSmallWords = 42; // 適度減少密度，把珍貴的畫布空間留給「變大後」的精緻字體
+            // 2. 部署填充小字
+            const maxSmallWords = 55; 
             let attempts = 0;
             
             while (words.length < (bigWords.length + maxSmallWords) && attempts < 4000) {
                 attempts++;
                 const text = smallWordsPool[attempts % smallWordsPool.length];
-                
-                // 🔮 讓背景填充小字的基礎尺寸大幅提升
-                const baseSize = 21 + (attempts % 5) + (Math.random() * 0.5);
+                const baseSize = 19 + (attempts % 6) + (Math.random() * 0.5);
                 const size = baseSize * scaleFactor; 
                 
-                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 20 * scaleFactor)) {
+                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 15 * scaleFactor)) {
                 }
             }
         }
@@ -271,7 +262,7 @@
             const H = canvas.height / dpr;
             
             let localAttempts = 0;
-            while (localAttempts < 600) {
+            while (localAttempts < 500) {
                 localAttempts++;
                 const x = Math.random() * (maxX - minX) + minX;
                 const y = Math.random() * (maxY - minY) + minY;
@@ -290,7 +281,7 @@
                 }
 
                 if (!isOverlapping) {
-                    const maxAngle = (isHighlight || dims.lines.length > 1) ? (2 * Math.PI / 180) : (25 * Math.PI / 180);
+                    const maxAngle = (isHighlight || dims.lines.length > 1) ? (3 * Math.PI / 180) : (25 * Math.PI / 180);
                     const rotateAngle = (Math.random() * 2 - 1) * maxAngle;
 
                     const colorIndex = (colorSeed * 7 + localAttempts) % colorPalette.length;
@@ -328,7 +319,7 @@
 
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
-                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.35);
+                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.25);
                         ctx.fillText(line, 0, offset);
                     });
                 } else {
@@ -337,7 +328,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應圓型聚光燈
+            // 第二層：置頂自適應圓型聚光燈（🔒 加強天花板物理限制）
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -354,6 +345,7 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
+                // 🔒 邊界物理反彈：Y軸天花板調高到 135 * scaleFactor，圓形灰框百分之百不碰觸雲朵
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
                 if (renderY - radius < 135 * scaleFactor) renderY = radius + 135 * scaleFactor;
@@ -362,11 +354,13 @@
                 ctx.translate(renderX, renderY);
                 ctx.rotate(word.angle);
 
+                // 圓形半透明底框
                 ctx.beginPath();
                 ctx.fillStyle = `rgba(95, 95, 95, ${0.78 * highlightProgress})`; 
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
                 ctx.fill();
 
+                // 聚光燈純白字
                 ctx.fillStyle = `rgba(255, 255, 255, ${highlightProgress})`;
                 ctx.font = `bold ${word.currentSize}px ${fontName}`;
                 ctx.textAlign = 'center';
@@ -374,7 +368,7 @@
 
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
-                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.35);
+                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.25);
                         ctx.fillText(line, 0, offset);
                     });
                 } else {
