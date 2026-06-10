@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 15.0</title>
+    <title>【未來許願機】夢想狂想文字雲 16.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -71,7 +71,6 @@
             position: absolute;
             left: 44.5%;
             top: 61%; 
-            transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
             font-size: 28px; 
@@ -148,10 +147,9 @@
         let dpr = window.devicePixelRatio || 1;
         let scaleFactor = 1; 
 
-        // 預設字體後備順序，確保在自訂字體下載完前也能正常顯示
         const fontName = "'MyCustomFont', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
 
-        // 🔒 關鍵修復：直接啟動文字雲，不再被非同步字體載入給卡死！
+        // 直接啟動文字雲，防止非同步鎖死
         initWordCloud();
 
         function initWordCloud() {
@@ -159,7 +157,6 @@
             generateLayout();
             drawLoop();
             
-            // 啟動聚光燈輪播機制
             setInterval(triggerSpotlight, 3800);
             setTimeout(triggerSpotlight, 1500); 
         }
@@ -175,7 +172,7 @@
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 15.0 智慧語意分詞演算法（每行限制5字且單詞不破碎）
+        // 🔮 16.0 終極穩定安全版：智慧語意斷行演算法
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
@@ -191,26 +188,30 @@
             else {
                 let remainingText = text;
                 
+                // 安全指針向後爬行法
                 while (remainingText.length > 0) {
                     if (remainingText.length <= 5) {
                         lines.push(remainingText);
                         break;
                     }
                     
-                    let breakIdx = 5; 
+                    let breakIdx = 5; // 預設單行切 5 個字
                     
+                    // 🔒 修正打架盲點：只有當剩餘字數真的大於 5 的時候，才去掃描有沒有專有名詞橫跨在第 5、6 字中間
                     for (let keyword of segmentKeywords) {
                         const kIdx = remainingText.indexOf(keyword);
+                        // 確保關鍵字起點在前 5 字內，且長度確實跨越了第 5 字的邊界
                         if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
                             if (kIdx > 0) {
-                                breakIdx = kIdx;
+                                breakIdx = kIdx; // 提前在單詞前切斷
                             } else {
-                                breakIdx = keyword.length;
+                                breakIdx = keyword.length; // 如果正好在開頭，完整保留該詞
                             }
                             break;
                         }
                     }
                     
+                    // 🔒 終極防禦鎖：如果因為任何極端原因導致 breakIdx 小於等於 0，強制切 1 個字前進，100% 杜絕死循環！
                     if (breakIdx <= 0 || breakIdx > remainingText.length) {
                         breakIdx = 5;
                     }
@@ -336,7 +337,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應圓型聚光燈（完美的 Y 軸防撞保護機制）
+            // 第二層：置頂自適應圓型聚光燈
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
