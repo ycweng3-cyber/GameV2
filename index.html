@@ -1,28 +1,9 @@
-沒問題！我完全明白您的意思了。之前的邏輯確實只處理了「切第一刀（分出第一行和剩下的字）」，但如果剩下的文字依然很長（例如大於 5 個字），它就會直接變成第二行，而沒有繼續往下套用「每行都不超過 5 字且不切斷單詞」的原則。
-
-為了讓每一行（第一行、第二行、甚至第三行）都嚴格遵守這個聰明的語意斷行機制，我重寫了斷句演算法，改用 「遞迴/迴圈字典雙向分詞演算法」：
-
-它會像剝洋蔥一樣，每次抓出最前面的 5 個字進行語意檢查。
-
-如果發現有核心單詞（如微積分、成功湖）跨在第 5 字的邊界上，它會提前把該單詞打包換行，並把剩下的文字重新丟回演算法裡，繼續往下用同樣的標準切下一行。
-
-如此一來，不論句子有多長，最終切出來的每一行都絕對不會超過 5 個字，且絕對不會把專有名詞攔腰折斷！
-
-🛠️ 「13.0 全文智慧行行防切斷版」更新核心：
-每一行全面導入 5 字防切機制：不管是多長的句子，切到最後都會呈現完美的短句排版。
-
-空間再拉寬：考慮到部分精選大字在每行限 5 字後可能會變成 3 行甚至 4 行（高度增加），我自動微調了安全緩衝區域與畫布排版，確保直式排版後，文字群依然能完美錯落，且聚光燈光圈絕對不會親到上方的雲朵與標題。
-
-💻 「迎新文字雲・13.0 全文智慧斷行完美版」完整程式碼
-請複製以下整段代碼，徹底覆蓋您 GitHub / Netlify 上的 index.html：
-
-HTML
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 13.0</title>
+    <title>【未來許願機】夢想狂想文字雲 14.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
@@ -85,11 +66,11 @@ HTML
             object-fit: contain; 
         }
 
-        /* 大標題精準固定錨定在雲朵底部 */
+        /* 🔒 精準校正：大標題完美固定在雲朵底部視覺線 */
         .title-cloud-text {
             position: absolute;
             left: 44.5%;
-            top: 59%; 
+            top: 61%; /* 經過精準微調，使字體完美錨定在 cloud.gif 的對話框底部 */
             transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
@@ -129,7 +110,7 @@ HTML
 
     <script>
         // ===================================================================
-        // ✨ 策展人專區二：手動精選回答（【每一行】都嚴格遵守5字上限、單詞不切斷原則）
+        // ✨ 策展人專區二：手動精選回答（行行遵守5字上限、單詞不切斷，且絕對不卡死）
         // ===================================================================
         const bigWords = [
             "希望在成功湖畔釣到大魚", "微積分一定要歐趴！", "每天都有睡飽8小時", 
@@ -193,13 +174,13 @@ HTML
             canvas.style.height = rect.height + 'px';
         }
 
-        // 🔮 13.0 超進化：「行行自適應」智慧語意分詞演算法
+        // 🔮 14.0 安全修復版：「絕對不卡死」的行行自適應智慧語意分詞演算法
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
             
-            // 內建核心清大詞庫
+            // 擴充清大核心關鍵字庫（包含成功湖畔等變體）
             const segmentKeywords = ["微積分", "成功湖", "腳踏車", "工程師", "聯發科", "台積電", "歐趴糖", "圖書館", "免修體育", "總錦標", "書卷獎", "男女朋友", "神曲產出"];
             
             // 優先處理英文空格斷句
@@ -208,7 +189,7 @@ HTML
                 lines.push(wordsArr.slice(0, 2).join(' '));
                 lines.push(wordsArr.slice(2).join(' '));
             } 
-            // 中文全面遞迴切片處理（確保每一行都不超5字且不切斷單詞）
+            // 中文智慧防卡死斷行機制
             else {
                 let remainingText = text;
                 
@@ -218,23 +199,32 @@ HTML
                         break;
                     }
                     
-                    let breakIdx = 5; // 每行最大默認容許值
+                    let breakIdx = 5; // 預設切 5 個字
                     
-                    // 掃描當前這段文字的前5個字，有沒有跨在邊界上的專有名詞
+                    // 檢查前 5 個字內有沒有包含關鍵字，且該關鍵字不幸跨越了第 5 字的邊界
                     for (let keyword of segmentKeywords) {
                         const kIdx = remainingText.indexOf(keyword);
-                        // 如果關鍵字存在，且起點在前5字之內，但終點跨過了第5字
+                        // 關鍵字起點在前 5 字內，且整個單詞長度跨過了第 5 字
                         if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
-                            breakIdx = kIdx; // 🔒 提前在該單詞前分行，保持單詞完整
+                            // 如果關鍵字不是在第 0 個位置，就在關鍵字開頭切斷
+                            if (kIdx > 0) {
+                                breakIdx = kIdx;
+                            } else {
+                                // 如果關鍵字正好在第 0 個位置（例如"成功湖畔釣大魚"中的"成功湖"占了0,1,2）
+                                // 則容許將切點推到關鍵字的結尾（例如推到第3個字「畔」前面切斷），確保單詞不破碎
+                                breakIdx = keyword.length;
+                            }
                             break;
                         }
                     }
                     
-                    // 防呆：如果單詞太長導致切斷點變成0，為免死循環，強制切5字
-                    if (breakIdx === 0) breakIdx = 5;
+                    // 🔒 安全鎖定：如果因為任何不可預期狀況導致 breakIdx 歸零或不合理，強制切 5 個字，絕對不進入死循環
+                    if (breakIdx <= 0 || breakIdx > remainingText.length) {
+                        breakIdx = 5;
+                    }
                     
                     lines.push(remainingText.substring(0, breakIdx));
-                    remainingText = remainingText.substring(breakIdx); // 剩下的部分進入下一輪迴圈繼續切
+                    remainingText = remainingText.substring(breakIdx);
                 }
             }
 
@@ -245,8 +235,7 @@ HTML
             });
             ctx.restore();
 
-            // 根據最終切出來的總行數，計算完美的垂直高度
-            const h = lines.length > 1 ? (size * (1.0 + (lines.length - 1) * 1.25)) : size;
+            const h = lines.length > 1 ? (size * (1.0 + (lines.length - 1) * 1.35)) : size;
             return { lines, width: maxWidth + 14, height: h + 10 };
         }
 
@@ -255,7 +244,7 @@ HTML
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
 
-            // 天花板安全防撞區，完美隔離聚光燈與頂部標題雲
+            // 天花板安全防撞區
             const titleHeightBoundary = 135 * scaleFactor; 
 
             // 1. 部署 12 個精選大字
@@ -266,7 +255,7 @@ HTML
             });
 
             // 2. 部署填充小字
-            const maxSmallWords = 50; // 稍微收斂密度，留給多行大字更多伸展舞台
+            const maxSmallWords = 50; 
             let attempts = 0;
             
             while (words.length < (bigWords.length + maxSmallWords) && attempts < 4000) {
@@ -308,7 +297,6 @@ HTML
                 }
 
                 if (!isOverlapping) {
-                    // 如果被切成了多行，角度盡量放平，確保手機端極佳的閱讀體驗
                     const maxAngle = (isHighlight || dims.lines.length > 1) ? (2 * Math.PI / 180) : (25 * Math.PI / 180);
                     const rotateAngle = (Math.random() * 2 - 1) * maxAngle;
 
@@ -347,7 +335,6 @@ HTML
 
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
-                        // 精準計算多行垂直中線偏移量
                         const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.35);
                         ctx.fillText(line, 0, offset);
                     });
@@ -357,7 +344,7 @@ HTML
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應圓型聚光燈（完美的 Y 軸防撞極限保護）
+            // 第二層：置頂自適應圓型聚光燈
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -374,7 +361,6 @@ HTML
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 🔒 行行檢查物理限制彈回：絕不碰觸雲朵（安全天花板 135px）
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
                 if (renderY - radius < 135 * scaleFactor) renderY = radius + 135 * scaleFactor;
