@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【未來許願機】夢想狂想文字雲 11.3</title>
+    <title>【未來許願機】夢想狂想文字雲 17.0</title>
     <style>
         /* ========================================================== */
         /* ✨ 策展人專區一：客製化字體載入區 */
         /* ========================================================== */
         @font-face {
             font-family: 'MyCustomFont';
-            src: url('StarPandaKidsBeta2.1.ttf') format('truetype'); /* ⚠️ 確保與您的 ttf 檔名完全一致 */
+            src: url('StarPandaKidsBeta2.1.ttf') format('truetype');
         }
 
         * { box-sizing: border-box; }
@@ -34,43 +34,43 @@
             font-size: 1rem;
         }
 
-        /* 文字雲外殼：純白底、圓角化、加溫柔陰影 */
+        /* 文字雲外殼 */
         .wordcloud-wrapper {
             position: relative;
             width: 100%;
             max-width: 850px;
-            height: 480px;
+            height: 520px; 
             background: #FFFFFF; 
             border-radius: 20px; 
             box-shadow: 0 12px 40px rgba(169, 156, 199, 0.25);
             overflow: hidden;
         }
 
-        /* 複合圖層：獨立的雲朵標題複合區 */
+        /* 雲朵標題複合區 */
         .title-cloud-container {
             position: absolute;
-            top: -5px;
+            top: -10px;
             left: 5px;
             z-index: 50; 
             display: flex;
             justify-content: center;
             align-items: center;
             width: 360px;
-            height: 120px;
+            height: 125px;
             transform-origin: top left;
         }
 
         .title-cloud-container img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; 
         }
 
-        /* 鎖定大辨識度大標題 */
+        /* 🔒 終極校正：大標題字體不論電腦手機，都完美置中於雲朵核心 */
         .title-cloud-text {
             position: absolute;
             left: 44.5%;
-            top: 54%;
+            top: 55.5%; /* 🔮 精準移回雲朵正中心腹地 */
             transform: translate(-50%, -50%);
             font-family: 'MyCustomFont', 'Noto Sans TC', sans-serif;
             font-weight: bold;
@@ -86,13 +86,14 @@
             display: block;
         }
 
-        /* 手機版 (寬度小於500) 專屬響應式優化：調大雲朵外框比例 */
+        /* 手機版響應式 RWD 縮放控制 */
         @media (max-width: 500px) {
             .title-cloud-container {
                 transform: scale(0.92); 
             }
             .title-cloud-text {
                 font-size: 25px; 
+                top: 56.5%; /* 🔮 手機版微調，確保不偏上 */
             }
         }
     </style>
@@ -110,37 +111,28 @@
 
     <script>
         // ===================================================================
-        // ✨ 策展人專區二：手動精選回答（固定最大的12個）
-        // 💡 提示：字詞之間輸入「兩個半形空格」，程式就會依您的意思強制分行！
+        // ✨ 策展人專區二：手動精選回答（每一行都遵守5字上限、單詞不切斷）
         // ===================================================================
         const bigWords = [
-            "在成功湖畔  釣到大魚", 
-            "微積分  裝作聽得懂！",       
-            "每天都睡飽  8小時", 
-            "交到  男女朋友", 
-            "帥到直接出道",       
-            "希望能跟  校長合照", 
-            "成為訂閱破10萬的  Youtuber", 
-            "腳踏車  永遠不被偷", 
-            "順利兩年  準時畢業", 
-            "碩論一次  就過關", 
-            "梅竹賽  清大總錦標", 
-            "拿到書卷獎"
+            "希望在成功湖畔釣到大魚", "不要被當掉！", "每天睡飽8小時", 
+            "出國交換", "直接出道", "成為醫科生，治癒他人❤️‍🩹", 
+            "被新竹的風吹到免修體育", "腳踏車永遠不被偷", "順利兩年準時畢業", 
+            "碩論一次就過關", "回家(T_T)", "成為我想成為的自己"
         ];
 
         // ===================================================================
-        // ✨ 策展人專區三：背景填充小字（小字若用雙空格切行也完全支援）
+        // ✨ 策展人專區三：背景填充小字
         // ===================================================================
         const smallWordsPool = [
-            "歐趴", "天天開心  沒煩惱", "實習順利", "進入竹科", "台積電報到", "錄取聯發科", "成功湖划船", 
-            "週末去夜唱", "總圖待一整天", "逛宵夜街", "水木變好吃", "大吃美食", "巨城逛到腳痠", "用九降風  放風箏", 
-            "畢旅環遊世界", "瀏海不會裂開", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", "絕不延畢",
-            "梅竹選我", "熱血夜衝", "青春環島", "100分", "大吉", "未來狂想曲", "夢想實現", "E人都給我  揪起來","告白",
+            "歐趴", "天天開心沒煩惱", "實習順利", "進入竹科", "台積電報到", "錄取聯發科", "成功湖划船", 
+            "週末去夜唱", "總圖待一整天", "逛宵夜街", "水木變好吃", "大吃美食", "巨城逛到腳痠", "用九降風放風箏", 
+            "畢旅平安", "瀏海不會裂開", "下課時間比上課長", "一直睡覺", "修滿學分", "通通選到", "騎貢丸", "專心看書", 
+            "梅竹選我", "熱血夜衝", "青春環島", "100分", "大吉", "未來狂想曲", "夢想實現", "E人都揪起來","告白",
             "不迷惘", "加油", "抽中宿舍", "冷氣很涼", "WiFi超快", "早八不遲到","我是I人我驕傲",
-            "歐趴糖", "颱風天放假", "賺大錢", "不掉傘", "脫單", "翹課不會被點到","逛新竹動物園"
+            "賺大錢", "颱風天放假", "賺大錢", "不掉傘", "脫單", "翹課不會被點到","逛新竹動物園","梅竹賽清大總錦標"
         ];
 
-        // 🎨 莫蘭迪繽紛色系矩陣
+        // 🎨 莫蘭迪繽紛色系
         const colorPalette = [
             "#6A51A3", "#8067B7", "#9A7EC9", "#B39DDB", "#D1C4E9", 
             "#1F6596", "#3A82B8", "#60A0D4", "#90CAF9", "#C1E2FF", 
@@ -157,14 +149,10 @@
         let dpr = window.devicePixelRatio || 1;
         let scaleFactor = 1; 
 
-        const fontName = "'MyCustomFont', 'Noto Sans TC', sans-serif";
+        const fontName = "'MyCustomFont', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif";
 
-        const cloudImg = new Image();
-        cloudImg.src = 'cloud.gif'; 
-
-        document.fonts.ready.then(() => {
-            initWordCloud();
-        });
+        // 直接啟動
+        initWordCloud();
 
         function initWordCloud() {
             resizeCanvas();
@@ -186,34 +174,48 @@
             canvas.style.height = rect.height + 'px';
         }
 
+        // 智慧語意分詞演算法（穩定安全版）
         function measureWishText(text, size) {
             ctx.save();
             ctx.font = `bold ${size}px ${fontName}`;
             let lines = [];
             
-            if (text.includes('  ')) {
-                lines = text.split(/ {2,}/).map(line => line.trim()).filter(line => line.length > 0);
+            const segmentKeywords = ["微積分", "成功湖", "腳踏車", "工程師", "聯發科", "台積電", "歐趴糖", "圖書館", "免修體育", "總錦標", "書卷獎", "男女朋友", "神曲產出"];
+            
+            const wordsArr = text.split(' ');
+            if (wordsArr.length > 2) {
+                lines.push(wordsArr.slice(0, 2).join(' '));
+                lines.push(wordsArr.slice(2).join(' '));
             } 
             else {
-                const wordsArr = text.split(' ');
-                if (wordsArr.length > 2) {
-                    const firstLine = wordsArr.slice(0, 2).join(' ');
-                    const secondLine = wordsArr.slice(2).join(' ');
-                    lines.push(firstLine);
-                    lines.push(secondLine);
-                } else if (text.length > 6 && !text.includes(' ')) {
-                    if (text.includes("成功湖畔")) {
-                        lines.push(text.substring(0, 6)); 
-                        lines.push(text.substring(6));    
-                    } else if (text.includes("被新竹的風吹到")) {
-                        lines.push("被新竹的風吹到"); 
-                        lines.push(text.replace("被新竹的風吹到", ""));
-                    } else {
-                        lines.push(text.substring(0, 6));
-                        lines.push(text.substring(6));
+                let remainingText = text;
+                
+                while (remainingText.length > 0) {
+                    if (remainingText.length <= 5) {
+                        lines.push(remainingText);
+                        break;
                     }
-                } else {
-                    lines.push(text);
+                    
+                    let breakIdx = 5; 
+                    
+                    for (let keyword of segmentKeywords) {
+                        const kIdx = remainingText.indexOf(keyword);
+                        if (kIdx >= 0 && kIdx < 5 && (kIdx + keyword.length) > 5) {
+                            if (kIdx > 0) {
+                                breakIdx = kIdx;
+                            } else {
+                                breakIdx = keyword.length;
+                            }
+                            break;
+                        }
+                    }
+                    
+                    if (breakIdx <= 0 || breakIdx > remainingText.length) {
+                        breakIdx = 5;
+                    }
+                    
+                    lines.push(remainingText.substring(0, breakIdx));
+                    remainingText = remainingText.substring(breakIdx);
                 }
             }
 
@@ -224,7 +226,7 @@
             });
             ctx.restore();
 
-            const h = lines.length > 1 ? (size * (1 + (lines.length - 1) * 0.9)) : size;
+            const h = lines.length > 1 ? (size * (1.0 + (lines.length - 1) * 1.35)) : size;
             return { lines, width: maxWidth + 14, height: h + 10 };
         }
 
@@ -232,28 +234,30 @@
             words = [];
             const W = canvas.width / dpr;
             const H = canvas.height / dpr;
-            
-            // 🔒【優化點 1】：將防撞安全天花板下推至 135，確保文字雲全體與標題拉開絕對安全距離
+
+            // 天花板安全防撞區（給予聚光燈絕對安全區）
             const titleHeightBoundary = 135 * scaleFactor; 
 
-            // 1. 部署 12 個精選大字
+            // 1. 部署 12 個精選大字（🔮 尺寸調高，確保呈現霸氣手寫風）
             bigWords.forEach((text, idx) => {
-                const baseSize = 42 - (idx * 1.1); 
+                const baseSize = 48 - (idx * 1.0); 
                 const size = baseSize * scaleFactor; 
-                addWordRandomScatter(text, size, true, idx, W * 0.16, W * 0.84, titleHeightBoundary, H * 0.82, 36 * scaleFactor);
+                addWordRandomScatter(text, size, true, idx, W * 0.15, W * 0.85, titleHeightBoundary, H * 0.82, 38 * scaleFactor);
             });
 
-            // 2. 部署填充小字
-            const maxSmallWords = 55; 
+            // 2. 部署填充小字（🔮 全面拉大基礎尺寸！手機版最底限維持在 21px 以上，與藍圈圈一致）
+            const maxSmallWords = 42; // 適度減少密度，把珍貴的畫布空間留給「變大後」的精緻字體
             let attempts = 0;
             
             while (words.length < (bigWords.length + maxSmallWords) && attempts < 4000) {
                 attempts++;
                 const text = smallWordsPool[attempts % smallWordsPool.length];
-                const baseSize = 19 + (attempts % 6) + (Math.random() * 0.5);
+                
+                // 🔮 讓背景填充小字的基礎尺寸大幅提升
+                const baseSize = 21 + (attempts % 5) + (Math.random() * 0.5);
                 const size = baseSize * scaleFactor; 
                 
-                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 15 * scaleFactor)) {
+                if (addWordRandomScatter(text, size, false, attempts, W * 0.05, W * 0.95, titleHeightBoundary, H * 0.94, 20 * scaleFactor)) {
                 }
             }
         }
@@ -267,7 +271,7 @@
             const H = canvas.height / dpr;
             
             let localAttempts = 0;
-            while (localAttempts < 500) {
+            while (localAttempts < 600) {
                 localAttempts++;
                 const x = Math.random() * (maxX - minX) + minX;
                 const y = Math.random() * (maxY - minY) + minY;
@@ -286,7 +290,7 @@
                 }
 
                 if (!isOverlapping) {
-                    const maxAngle = (isHighlight || dims.lines.length > 1) ? (3 * Math.PI / 180) : (25 * Math.PI / 180);
+                    const maxAngle = (isHighlight || dims.lines.length > 1) ? (2 * Math.PI / 180) : (25 * Math.PI / 180);
                     const rotateAngle = (Math.random() * 2 - 1) * maxAngle;
 
                     const colorIndex = (colorSeed * 7 + localAttempts) % colorPalette.length;
@@ -309,7 +313,7 @@
             ctx.save();
             ctx.scale(dpr, dpr); 
 
-            // 第一層：普通文字繪製
+            // 第一層：普通文字
             words.forEach((word, idx) => {
                 if (idx === activeIndex) return; 
                 ctx.save();
@@ -324,7 +328,7 @@
 
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
-                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.25);
+                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.35);
                         ctx.fillText(line, 0, offset);
                     });
                 } else {
@@ -333,7 +337,7 @@
                 ctx.restore();
             });
 
-            // 第二層：置頂自適應多行正圓形聚光燈
+            // 第二層：置頂自適應圓型聚光燈
             if (activeIndex !== -1) {
                 const word = words[activeIndex];
                 ctx.save();
@@ -350,12 +354,9 @@
                 const W = canvas.width / dpr;
                 const H = canvas.height / dpr;
 
-                // 🔒【優化點 2】：嚴格限制高光圓圈的最上緣，絕對不可小於 titleHeightBoundary，防止擦到標題
-                const topCeiling = 120 * scaleFactor; 
-
                 if (renderX - radius < 15) renderX = radius + 15;
                 if (renderX + radius > W - 15) renderX = W - radius - 15;
-                if (renderY - radius < topCeiling) renderY = radius + topCeiling; // 完美防擦邊反彈限制
+                if (renderY - radius < 135 * scaleFactor) renderY = radius + 135 * scaleFactor;
                 if (renderY + radius > H - 15) renderY = H - radius - 15;
 
                 ctx.translate(renderX, renderY);
@@ -373,7 +374,7 @@
 
                 if (word.lines.length > 1) {
                     word.lines.forEach((line, lIdx) => {
-                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.25);
+                        const offset = (lIdx - (word.lines.length - 1) / 2) * (word.currentSize * 1.35);
                         ctx.fillText(line, 0, offset);
                     });
                 } else {
